@@ -51,3 +51,8 @@ Evidence: direct generateContent call returned blockReason MODEL_ARMOR, no token
 ## Notes
 Model Armor sanitize API run directly against the template: vendor-faq.txt matched prompt injection at HIGH; hr-employee-record.txt matched SDP (US_SOCIAL_SECURITY_NUMBER).
 Floor settings were configured in the console after the CLI failed.
+
+## F3-02 retest (2026-10-13, later session)
+CLI floor-settings PERMISSION_DENIED reproduced in project ai-org-perimeter, which sits under organization aristotle.systems, as project Owner admin@aristotle.systems.
+Conclusion: the CLI error is not caused by the missing organization or by billing attribution (ruled out in Module 5). It reproduces across identities and projects.
+Not tested: whether Agent Platform floor-setting enforcement works for a Vertex AI workload inside an organization. The enforcement gap root cause remains unconfirmed.
