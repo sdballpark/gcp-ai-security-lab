@@ -1,0 +1,12 @@
+- ingressFrom:
+    identities:
+    - user:admin@aristotle.systems
+    sources:
+    - accessLevel: "*"
+  ingressTo:
+    operations:
+    - serviceName: storage.googleapis.com
+      methodSelectors:
+      - method: "*"
+    resources:
+    - "*"
