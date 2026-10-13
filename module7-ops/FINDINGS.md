@@ -53,7 +53,7 @@ C7-03 Key-state detection fires on disable, not on re-enable.
 
 ## Security Command Center (CSPM)
 Activated Standard tier at organization level on aristotle.systems (896039580817), 2026-10-13.
-Project-level activation was not available for rb-ai-prod-sim-1013, which has no parent organization. The AI app projects are therefore outside SCC coverage; only organization projects are scanned.
+Project-level activation for rb-ai-prod-sim-1013 (no parent organization) was not attempted; Google documentation describes project-level activation relative to a parent organization. The AI app projects are outside this SCC activation; only organization projects are scanned.
 Role required in addition to Organization Admin: roles/securitycenter.admin, granted at organization level.
 Encryption choice made at activation: Google-managed key. SCC findings data can use CMEK only if selected at activation, so this belongs in the CMEK applicability model as a pre-activation decision.
 Initial state: no findings. First scan of a new organization can take hours. Findings review pending.
