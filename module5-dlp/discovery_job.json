@@ -1,0 +1,16 @@
+{
+  "inspectJob": {
+    "storageConfig": {
+      "cloudStorageOptions": {"fileSet": {"url": "gs://rb-ai-prod-sim-1013-docs/**"}}
+    },
+    "inspectConfig": {
+      "infoTypes": [
+        {"name": "US_SOCIAL_SECURITY_NUMBER"}, {"name": "CREDIT_CARD_NUMBER"},
+        {"name": "EMAIL_ADDRESS"}, {"name": "PHONE_NUMBER"},
+        {"name": "STREET_ADDRESS"}, {"name": "PERSON_NAME"}
+      ],
+      "minLikelihood": "POSSIBLE",
+      "includeQuote": false
+    }
+  }
+}

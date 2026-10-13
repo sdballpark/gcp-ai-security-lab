@@ -1,0 +1,22 @@
+[
+ {
+  "file": "hr-employee-record.txt",
+  "action": "CLEANED",
+  "transformations": 3
+ },
+ {
+  "file": "refund-log.txt",
+  "action": "CLEANED",
+  "transformations": 2
+ },
+ {
+  "file": "store-ops-policy.txt",
+  "action": "CLEANED",
+  "transformations": 0
+ },
+ {
+  "file": "vendor-faq.txt",
+  "action": "QUARANTINED",
+  "reason": "prompt injection"
+ }
+]
