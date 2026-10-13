@@ -50,3 +50,15 @@ Each service must be checked against Google's CMEK-supported services list befor
 C7-01 Ingress-opening detection fires on real open-ingress deploys, including default-public, and not on the fix.
 C7-02 Customer-managed key revocation renders stored data unreadable, and restoration is reversible.
 C7-03 Key-state detection fires on disable, not on re-enable.
+
+## Security Command Center (CSPM)
+Activated Standard tier at organization level on aristotle.systems (896039580817), 2026-10-13.
+Project-level activation was not available for rb-ai-prod-sim-1013, which has no parent organization. The AI app projects are therefore outside SCC coverage; only organization projects are scanned.
+Role required in addition to Organization Admin: roles/securitycenter.admin, granted at organization level.
+Encryption choice made at activation: Google-managed key. SCC findings data can use CMEK only if selected at activation, so this belongs in the CMEK applicability model as a pre-activation decision.
+Initial state: no findings. First scan of a new organization can take hours. Findings review pending.
+
+## F7-07 Workloads outside the organization are invisible to org-level CSPM (MEDIUM, coverage)
+Projects created under a personal account, with no organization, cannot be enrolled in organization-level SCC.
+Enterprise relevance: shadow projects created outside the corporate org escape posture monitoring entirely.
+Recommendation: restrict project creation to the organization and inventory billing accounts for projects outside it.
