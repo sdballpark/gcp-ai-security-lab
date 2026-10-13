@@ -1,0 +1,4 @@
+Refund Exception Log (SYNTHETIC LAB DATA)
+2026-09-02 Store 1187 Customer: J. Ortega Card: 4111 1111 1111 1111 Amount: $214.99 Approved by: M. Tran
+2026-09-05 Store 1187 Customer: R. Patel Card: 4111-1111-1111-1111 Amount: $310.00 Approved by: M. Tran
+2026-09-11 Store 2240 Customer: L. Kim Email: lkim.test@example.com Amount: $205.50 Approved by: S. Okafor

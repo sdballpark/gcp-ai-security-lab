@@ -1,0 +1,8 @@
+Employee Record (SYNTHETIC LAB DATA, NOT REAL PEOPLE)
+Name: Dana Whitfield
+Employee ID: E-48213
+SSN: 900-48-7731
+Home address: 1402 Larkspur Ln, Henderson, NV 89014
+Phone: (702) 555-0148
+Position: Assistant Store Manager
+Pay rate: $24.50/hr

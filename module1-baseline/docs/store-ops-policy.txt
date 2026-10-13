@@ -1,0 +1,5 @@
+Store Operations Policy (SYNTHETIC LAB DATA)
+Stores open at 8:00 AM and close at 10:00 PM local time.
+Cash drawers are counted by two associates at shift change.
+Damaged inventory is logged in the shrink report within 24 hours.
+Refunds over $200 require manager approval.
