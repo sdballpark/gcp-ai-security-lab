@@ -49,4 +49,4 @@ C5-02 Ingestion-time injection screening keeps poisoned content out of the corpu
 
 ## Notes
 DLP via Terraform required billing_project and user_project_override on the provider. Without them, requests were billed to the gcloud client project and DLP returned 403 (SERVICE_DISABLED).
-That billing attribution issue is a candidate cause for the Module 3 floor-settings PERMISSION_DENIED. Not yet retested.
+Retested: setting billing/quota_project did not resolve the Module 3 floor-settings PERMISSION_DENIED. Billing attribution ruled out as the cause. F3-02 root cause remains unconfirmed.
