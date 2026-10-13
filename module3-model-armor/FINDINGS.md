@@ -56,3 +56,9 @@ Floor settings were configured in the console after the CLI failed.
 CLI floor-settings PERMISSION_DENIED reproduced in project ai-org-perimeter, which sits under organization aristotle.systems, as project Owner admin@aristotle.systems.
 Conclusion: the CLI error is not caused by the missing organization or by billing attribution (ruled out in Module 5). It reproduces across identities and projects.
 Not tested: whether Agent Platform floor-setting enforcement works for a Vertex AI workload inside an organization. The enforcement gap root cause remains unconfirmed.
+
+## F3-02 correction (2026-10-13)
+Admin Activity audit log shows one UpdateFloorSetting event (20:48 UTC, the Inspect-only save). No event exists for the later switch to Inspect and block.
+The block-mode configuration is therefore not evidenced. The "Floor settings, Inspect and block" results row may reflect Inspect-only behavior.
+Inspect-only finding stands: floor settings showed Enabled, produced no Model Armor logs, and enforced nothing.
+Lesson applied: confirm configuration changes in the audit log, not only in the console.
