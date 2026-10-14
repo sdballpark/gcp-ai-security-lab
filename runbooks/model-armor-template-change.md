@@ -29,6 +29,8 @@ curl -s "${H[@]}" "$URL" | python3 -m json.tool
 
 If the template is missing any filter the floor requires, or sets it less strictly, fix that now, outside an incident. Model Armor rejects every change to a non-conformant template, including urgent ones (F3-02). In the lab the floor was set 25 minutes after the template was created, and nothing flagged the gap until an edit was attempted the next day.
 
+Also check aiPlatformFloorSetting in the floor output. inspectOnly: true means the floor logs matches and blocks nothing. In the lab the floor ran that way for a day while the console showed it as enabled (F3-02).
+
 **2. Confirm the guardrail-change alert is enabled.**
 
 ```bash

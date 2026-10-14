@@ -85,7 +85,7 @@ I also screened individual documents and full assembled prompts directly against
 
 ## Findings worth reading first
 
-**A control reported healthy while enforcing nothing.** Model Armor floor settings showed "Enabled" in the console, but attack traffic was unchanged and no Model Armor logs appeared. The audit log also showed no record of the later switch to block mode. Template-based enforcement on the same requests worked. The root cause is not confirmed. See `module3-model-armor/FINDINGS.md`.
+**A control reported healthy while enforcing nothing.** Model Armor floor settings showed "Enabled" in the console, but attack traffic was unchanged and no Model Armor logs appeared. The audit log also showed no record of the later switch to block mode. Template-based enforcement on the same requests worked. Root cause, found the next day: the floor was in inspect-only mode. It logged the attack as MATCH_FOUND and let it through. Switched to inspect-and-block and confirmed by read-back, the same prompt was blocked. See `module3-model-armor/FINDINGS.md`.
 
 **Each layer missed something the next layer caught.** The role-play jailbreak passed Cloud Armor and Model Armor, and the model complied. Nothing leaked, because DLP had already masked the data. See `module5-dlp/FINDINGS.md`.
 

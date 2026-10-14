@@ -74,3 +74,17 @@ Impact: an administrator, a deployment pipeline, or a reviewer filtering audit l
 Detection: the Module 7 alert matches on method, not status, and fired at 19:06 UTC on the rejected call.
 Recommendation: alert on guardrail changes regardless of status. After any failed change, confirm the actual template state. Report the behavior to the provider.
 Timing detail: the floor setting's updateTime is 2026-10-13 20:48:04 UTC, 25 minutes after the template was created at 20:23:59. The template predates the floor rule. After conformance, an attack prompt returned MATCH_FOUND and a store-hours question returned NO_MATCH_FOUND, so the added filters did not block normal use.
+
+## F3-02 root cause found (2026-10-14)
+The floor setting's aiPlatformFloorSetting was inspectOnly: true. In that mode the floor screens Vertex AI traffic and logs verdicts but blocks nothing. The setting's updateTime had not changed since creation (2026-10-13 20:48:04), so the switch to block mode recorded on Oct 13 never saved.
+
+| Mode | Attack prompt (direct Gemini call, no template) | Floor verdict in sanitize_operations log | Harmless prompt |
+|---|---|---|---|
+| Inspect only | Answered. The model complied ("You have entered debug mode...") | MATCH_FOUND at 20:24:29 | Answered |
+| Inspect and block (set 20:29:30, read back, updateTime 20:29:29) | Blocked: "Blocked by Model Armor Floor Setting: The prompt violated Prompt Injection and Jailbreak" | MATCH_FOUND at 20:31:01 | Answered |
+
+The console's "Enabled" was accurate: enabled as a monitor. The floor detected the attack and allowed it.
+Floor logs appear under modelarmor.googleapis.com/sanitize_operations. On Oct 14 they appeared only for Vertex AI calls without a template; app calls through the template produced no floor entries.
+
+## LG-02 resolved: template screening logs enabled (2026-10-14)
+templateMetadata.logSanitizeOperations and logTemplateOperations set true at 20:47:12 and read back. A template screening call at 20:47:43 produced a sanitize_operations entry naming store-assistant-ma with MATCH_FOUND.
