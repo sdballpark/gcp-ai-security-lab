@@ -104,6 +104,8 @@ The SCC findings report opens with what the scanner actually covers, and a canar
 
 The AI use-case risk assessment is the intake form an AI project completes before design review. It assigns a risk tier by rule and lists the reviews that tier requires: `decision-support/ai-use-case-risk-assessment.md`
 
+The AI logging gap assessment checks which questions the logs can actually answer, from who changed a guardrail to who read the customer data: `decision-support/ai-logging-gap-assessment.md`
+
 ## Repository layout
 
 ```
