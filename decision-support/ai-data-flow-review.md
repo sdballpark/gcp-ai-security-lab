@@ -6,7 +6,7 @@
 
 ## Summary
 
-Source documents containing personal data are screened and masked before the model sees them, and the app reads only the masked copy. Two gaps undercut that. The app's identity can still read the raw, unmasked bucket, and the app falls back to that bucket if its configuration is missing. Together they mean one bad redeploy would send unmasked data to the model with no error. Ingestion also runs by hand under a person's credentials.
+Source documents containing personal data are screened and masked before the model sees them, and the app reads only the masked copy. Two gaps undercut that. The app's identity can still read the raw, unmasked bucket, and the app falls back to that bucket if its configuration is missing. Together they meant one bad redeploy would send unmasked data to the model with no error. The raw-bucket grant was removed the same day (DF-01). Ingestion also runs by hand under a person's credentials.
 
 All facts below were checked against the deployed configuration and source code on 2026-10-14.
 
@@ -22,7 +22,7 @@ flowchart LR
   USER["Store staff"] -->|"POST /ask"| EDGE["Load balancer and Cloud Armor (removed after testing)"]
   EDGE --> RUN["Cloud Run store-assistant, identity store-assistant-sa"]
   CLEAN -->|"read, every document on every request"| RUN
-  RAW -.->|"read still granted (DF-01)"| RUN
+  RAW -.->|"read removed (DF-01 fixed)"| RUN
   RUN -->|"prompt with documents"| MA{"Model Armor: prompt and response"}
   MA --> VTX["Vertex AI, Gemini 2.5 Flash"]
   VTX -->|response| MA
@@ -40,13 +40,15 @@ flowchart LR
 | 4 | Ingestion to clean bucket | Masked text | Same | DLP inspect and de-identify templates | None found |
 | 5 | User to Cloud Run | Question in a POST body | None. No user login. | Ingress limited to internal and load balancer traffic (AC-10). Cloud Armor and rate limit when the load balancer is deployed. | No user authentication. Prompts are not logged (LG-06). |
 | 6 | Clean bucket to Cloud Run | Every masked document, on every request | store-assistant-sa, object reader | Masked data only | No retrieval scoping. Every user gets content from every document (DF-05). |
-| 7 | Raw bucket to Cloud Run | Not used today | store-assistant-sa still holds object reader | None | DF-01 |
+| 7 | Raw bucket to Cloud Run | None | Object reader removed 2026-10-14 | Denied when tested as the app identity | DF-01 resolved |
 | 8 | Cloud Run to Model Armor to Vertex AI and back | Assembled prompt and model response | store-assistant-sa, Vertex AI user | Model Armor template (AC-02). Floor setting on template changes (AC-03). | Screening results not logged (LG-02). Guardrail turns off if its setting is missing (DF-04). |
 
 ## Findings
 
 ### DF-01 The app identity can still read the raw, unmasked bucket (HIGH)
-store-assistant-sa holds object reader on the raw docs bucket as well as docs-clean. The raw grant dates from Module 2 and was not removed when Module 5 moved the app to the clean bucket. With DF-04, a redeploy that drops DOCS_BUCKET would send unmasked personal data to the model, and nothing would report an error. The identity now has three grants, not the two recorded in Module 2.
+store-assistant-sa holds object reader on the raw docs bucket as well as docs-clean. The raw grant dates from Module 2 and was not removed when Module 5 moved the app to the clean bucket. With DF-04, a redeploy that drops DOCS_BUCKET would send unmasked personal data to the model, and nothing would report an error. The identity had three grants, not the two recorded in Module 2.
+
+**Resolved 2026-10-14.** The raw-bucket grant was removed in Terraform (module2-iam). Tested as the app identity, listing the raw bucket was denied for storage.objects.list, and the bucket policy no longer lists the account. The clean-bucket grant is unchanged in module5-dlp. A gcloud listing of the clean bucket was blocked by a quota-project permission the CLI requires and the app does not use, so the app's clean read was confirmed from configuration, not a live request.
 
 ### DF-02 Every project Viewer can read raw and quarantined data (MEDIUM)
 Default legacy bindings give the project's Viewer role read access to every bucket, including raw PII and quarantined documents. Read-only access granted to the project for any purpose exposes the source data.
@@ -67,7 +69,7 @@ The customer-managed key was tested on a separate bucket, and docs-clean uses Go
 
 | Priority | Item | Closes | Effort | Needs approval from |
 |---|---|---|---|---|
-| 1 | Remove store-assistant-sa read access on the raw bucket, in Terraform | DF-01 | Low | Platform owner |
+| 1 | Remove store-assistant-sa read access on the raw bucket, in Terraform | DF-01 | Done 2026-10-14 | Platform owner |
 | 2 | Make the app refuse to start without DOCS_BUCKET and MA_TEMPLATE | DF-04 | Low | Application owner |
 | 3 | Remove legacy Viewer bindings on raw and quarantine buckets | DF-02 | Low | Platform owner |
 | 4 | Run ingestion as a dedicated service account, triggered on upload | DF-03 | Medium | Platform owner |

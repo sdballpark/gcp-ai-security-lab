@@ -93,7 +93,7 @@ For use cases built on the Enterprise cloud. Each answer tells security architec
 | Field | What to provide | Triggers | Example |
 |---|---|---|---|
 | Project and organization | Project ID, and whether it sits inside the Enterprise organization | SCC coverage check | Outside any organization (F7-07) |
-| Runtime identity | Service account the app runs as, and its roles | AI IAM risk assessment | Dedicated account, three grants, one more than needed (DF-01) |
+| Runtime identity | Service account the app runs as, and its roles | AI IAM risk assessment | Dedicated account, two grants after the DF-01 fix |
 | Service perimeter | Inside a VPC Service Controls perimeter? | VPC-SC feasibility and dry run | Tested separately (Module 4) |
 | Network path | Public URL, load balancer, private access only | Network exposure assessment | Load balancer, ingress restricted (Module 6) |
 | Sensitive data handling | Inspection and masking before data reaches the model | DLP discovery | Yes (Module 5) |

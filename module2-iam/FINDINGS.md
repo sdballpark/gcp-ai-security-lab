@@ -32,3 +32,9 @@ Decision owner: platform team. Not a contractor decision.
 ## Notes
 F1-01 (PII exposure through retrieval) is unchanged by IAM work. Least privilege limits what a compromised app can do; it does not limit what a legitimate user can ask for.
 Impersonation required the IAM Credentials API and took about 3 minutes to propagate after the grant.
+
+## Update 2026-10-14: raw-bucket grant removed (DF-01)
+The docs_reader grant (object reader on the raw docs bucket) remained after Module 5 moved the app to docs-clean. Removed in iam.tf and applied.
+Tested as store-assistant-sa through short-lived impersonation (a time-limited grant, removed after the test): listing the raw bucket was denied for storage.objects.list. The bucket policy no longer lists the account.
+The clean-bucket grant lives in module5-dlp and is unchanged. A gcloud listing of docs-clean as the app identity was blocked by serviceusage.services.use, a quota-project permission the CLI requires and the app does not use, so the clean read was confirmed from configuration.
+Note: impersonation was not usable 90 seconds after the temporary grant, and worked after 120 seconds.

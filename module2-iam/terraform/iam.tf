@@ -5,11 +5,7 @@ resource "google_service_account" "store_assistant" {
 }
 
 # Read only, scoped to the docs bucket, not the project
-resource "google_storage_bucket_iam_member" "docs_reader" {
-  bucket = "${var.project_id}-docs"
-  role   = "roles/storage.objectViewer"
-  member = "serviceAccount:${google_service_account.store_assistant.email}"
-}
+# docs_reader removed 2026-10-14 (DF-01). The app reads docs-clean, granted in module5-dlp.
 
 # Gemini calls on Vertex AI
 resource "google_project_iam_member" "vertex_user" {
