@@ -59,8 +59,12 @@ ingest.py uses the operator's gcloud token on a workstation. Raw personal data p
 ### DF-04 The app fails open when its configuration is missing (MEDIUM)
 DOCS_BUCKET defaults to the raw bucket. MA_TEMPLATE defaults to empty, which turns Model Armor off (the F7-05 path, confirmed in source). Both should fail closed: refuse to start without them.
 
+**Resolved 2026-10-14 (Module 8).** The app now refuses to start without its settings, and with gunicorn --preload a revision missing the guardrail setting is rejected at deploy while traffic stays on the last good revision. The first attempt without --preload was marked healthy by the platform (F8-01).
+
 ### DF-05 Every document goes into every prompt (MEDIUM, design)
 There is no retrieval step. Each request sends the full masked corpus to the model, so any user can draw on any document. With documents scoped to different audiences, this would be oversharing (OWASP LLM08).
+
+**Addressed in Module 8.** Retrieval now filters to the caller's entitlements before ranking. Tested with two personas. Remaining gap: no relevance threshold (F8-03).
 
 ### DF-06 RAG data is outside the key and perimeter controls tested elsewhere (LOW, lab design)
 The customer-managed key was tested on a separate bucket, and docs-clean uses Google-managed encryption. VPC Service Controls were tested on separate organization projects. The app project sits outside the organization (F7-07).
@@ -70,10 +74,10 @@ The customer-managed key was tested on a separate bucket, and docs-clean uses Go
 | Priority | Item | Closes | Effort | Needs approval from |
 |---|---|---|---|---|
 | 1 | Remove store-assistant-sa read access on the raw bucket, in Terraform | DF-01 | Done 2026-10-14 | Platform owner |
-| 2 | Make the app refuse to start without DOCS_BUCKET and MA_TEMPLATE | DF-04 | Low | Application owner |
+| 2 | Make the app refuse to start without DOCS_BUCKET and MA_TEMPLATE | DF-04 | Done 2026-10-14 | Application owner |
 | 3 | Remove legacy Viewer bindings on raw and quarantine buckets | DF-02 | Low | Platform owner |
 | 4 | Run ingestion as a dedicated service account, triggered on upload | DF-03 | Medium | Platform owner |
-| 5 | Add retrieval scoped to the user's entitlements | DF-05 | Medium to high | Architecture review |
+| 5 | Add retrieval scoped to the user's entitlements | DF-05 | Done in lab (Module 8) | Architecture review |
 | 6 | Move the app into the organization, inside a perimeter, with CMEK on docs-clean | DF-06, F7-07 | Medium | Platform owner |
 
 **Decision owner:** [Security leadership]

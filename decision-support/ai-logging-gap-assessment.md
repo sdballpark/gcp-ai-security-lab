@@ -45,12 +45,14 @@ No log sink sends data to a SIEM or to longer storage. Investigations older than
 
 ### LG-04 Guardrail removal from the service is not detected (MEDIUM)
 Removing the Model Armor setting from the Cloud Run service turns enforcement off and logs as a routine deploy (F7-05). No detection exists yet.
+Update: the Module 8 app refuses to start without the setting, so removal now blocks the deploy. The detection itself is still not built.
 
 ### LG-05 Attack and exfiltration signals are logged but not alerted (MEDIUM)
 VPC-SC violation entries are recorded with no alert. DLP quarantine events and Cloud Armor blocks were not assessed: the Cloud Armor module was removed after testing, and quarantine logging was not checked.
 
 ### LG-06 Prompts are not logged, by default rather than by decision (LOW)
 The /ask endpoint takes the question in a POST body, and the app has no logging calls, so nothing records what was asked. That avoids storing personal data a user might type, but leaves no record for an abuse investigation. Either choice can be defended. It should be made with privacy, not left as a default.
+Update: the Module 8 app logs the caller, entitlements and retrieved document names for each request, without the question text.
 
 ### LG-07 Organization-level gaps carry over (MEDIUM)
 The AI application project sits outside the organization (F7-07), and organization posture scanning is not detecting (F7-08).

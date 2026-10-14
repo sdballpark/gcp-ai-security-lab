@@ -1,0 +1,6 @@
+google-genai
+google-cloud-storage
+google-auth
+requests
+flask
+gunicorn

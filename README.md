@@ -66,7 +66,7 @@ I also screened individual documents and full assembled prompts directly against
 | LLM05 | Improper Output Handling | Not tested. The app returns plain text and nothing downstream renders or executes it. | |
 | LLM06 | Excessive Agency | Not applicable. The app has no tools or actions. Least privilege on its identity is tested in Module 2. | |
 | LLM07 | System Prompt Leakage | Attempted through the instruction-override prompt. Leakage of the system prompt itself was not measured separately. | Module 3 |
-| LLM08 | Vector and Embedding Weaknesses | Not tested. The app has no vector store. | |
+| LLM08 | Vector and Embedding Weaknesses | Tested: retrieval scoped to the caller's entitlements before ranking | Module 8 |
 | LLM09 | Misinformation | Not tested. | |
 | LLM10 | Unbounded Consumption | Partly tested: per-client rate limit at the edge. | Module 6 |
 
@@ -81,6 +81,7 @@ I also screened individual documents and full assembled prompts directly against
 | 5 | Sensitive Data Protection (DLP) | An ingestion pipeline masks PII and quarantines documents that carry prompt injection. Result: 0 of 30 leaks, with harmless questions answered again. |
 | 6 | Cloud Armor and network exposure | The WAF blocked SQL injection at the edge. The app's direct URL bypassed every edge control until ingress was restricted. |
 | 7 | Detections, CMEK, Security Command Center | Three log-based detections, each backtested against real audit events. Disabling a customer-managed key made stored data unreadable until re-enabled. |
+| 8 | RAG with per-user access | Store staff never retrieved HR or payments documents, even under injection. A missing guardrail setting now blocks the deploy. |
 
 ## Findings worth reading first
 
@@ -122,6 +123,7 @@ module4-vpcsc/         Ingress rule and perimeter test record
 module5-dlp/           DLP templates and buckets in Terraform, ingestion pipeline
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
+module8-rag/           Scoped retrieval app, index builder, personas in Terraform
 decision-support/      Intake template, control matrix, findings report, decision packs
 runbooks/              Procedures built from findings
 ```
