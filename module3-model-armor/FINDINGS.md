@@ -73,3 +73,4 @@ At 19:04:28 UTC a label update returned HTTP 400 and the audit log recorded code
 Impact: an administrator, a deployment pipeline, or a reviewer filtering audit logs for successful changes would conclude nothing changed.
 Detection: the Module 7 alert matches on method, not status, and fired at 19:06 UTC on the rejected call.
 Recommendation: alert on guardrail changes regardless of status. After any failed change, confirm the actual template state. Report the behavior to the provider.
+Timing detail: the floor setting's updateTime is 2026-10-13 20:48:04 UTC, 25 minutes after the template was created at 20:23:59. The template predates the floor rule. After conformance, an attack prompt returned MATCH_FOUND and a store-hours question returned NO_MATCH_FOUND, so the added filters did not block normal use.

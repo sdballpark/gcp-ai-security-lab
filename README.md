@@ -106,6 +106,8 @@ The AI use-case risk assessment is the intake form an AI project completes befor
 
 The AI logging gap assessment checks which questions the logs can actually answer, from who changed a guardrail to who read the customer data: `decision-support/ai-logging-gap-assessment.md`
 
+Runbooks turn findings into procedures. The first covers changing a Model Armor template safely, built from F3-02 and F3-03: `runbooks/model-armor-template-change.md`
+
 ## Repository layout
 
 ```
@@ -117,6 +119,7 @@ module5-dlp/           DLP templates and buckets in Terraform, ingestion pipelin
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
 decision-support/      Intake template, control matrix, findings report, decision packs
+runbooks/              Procedures built from findings
 ```
 
 Each module has a `FINDINGS.md` with the tests, results, findings by severity, options where a decision is needed, and the controls verified.
