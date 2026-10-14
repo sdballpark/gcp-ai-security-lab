@@ -100,6 +100,8 @@ The first pack covers F4-03, manual export under an enforced perimeter: `decisio
 
 The AI control matrix lists every control the lab tested, with its evidence and status, and columns for Dev and Prod as a real engagement would use them: `decision-support/ai-control-matrix.md`
 
+The SCC findings report opens with what the scanner actually covers, and a canary test showing why a zero-findings result could not be trusted: `decision-support/scc-findings-report.md`
+
 ## Repository layout
 
 ```
@@ -110,7 +112,7 @@ module4-vpcsc/         Ingress rule and perimeter test record
 module5-dlp/           DLP templates and buckets in Terraform, ingestion pipeline
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
-decision-support/      AI control matrix and decision packs, for risk owners
+decision-support/      Control matrix, findings report and decision packs, for risk owners
 ```
 
 Each module has a `FINDINGS.md` with the tests, results, findings by severity, options where a decision is needed, and the controls verified.

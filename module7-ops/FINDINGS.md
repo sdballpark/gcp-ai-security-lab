@@ -62,3 +62,10 @@ Initial state: no findings. First scan of a new organization can take hours. Fin
 Projects created under a personal account, with no organization, cannot be enrolled in organization-level SCC.
 Enterprise relevance: shadow projects created outside the corporate org escape posture monitoring entirely.
 Recommendation: restrict project creation to the organization and inventory billing accounts for projects outside it.
+
+## F7-08 SCC active, but misconfiguration scanning is not available (HIGH, coverage)
+Date tested: 2026-10-14. Zero findings after activation. A canary firewall rule allowing TCP 22 from 0.0.0.0/0 was created at 16:05 UTC on an empty network in ai-org-outside-1013 and was not detected by 18:00 UTC.
+Security Health Analytics: effectiveEnablementState DISABLED, intendedEnablementState INHERITED. Not listed among available services in the console. Enabling through the API returned FAILED_PRECONDITION. Tier confirmed as Standard on the Setup details page.
+Canary deleted at 18:09 UTC.
+Lesson: a zero-findings result is only meaningful after a canary proves the detector fires. The SCC v1 findings API is retired; v2 with --location=global is required.
+Full write-up: decision-support/scc-findings-report.md

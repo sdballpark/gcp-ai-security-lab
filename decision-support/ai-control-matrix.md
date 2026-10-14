@@ -7,7 +7,7 @@
 
 ## Summary
 
-The matrix lists 16 controls. In the lab, 7 are tested and working. 6 work but have open gaps. 1 reported healthy but enforced nothing. 1 is built but not validated. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
+The matrix lists 16 controls. In the lab, 7 are tested and working. 5 work but have open gaps. 2 showed as active in the console but did nothing when tested. 1 is built but not validated. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
 
 ## Controls
 
@@ -27,7 +27,7 @@ The matrix lists 16 controls. In the lab, 7 are tested and working. 6 work but h
 | AC-12 | Detection: ingress opened on Cloud Run | | Cloud Logging | Module 7. Backtest matched 6 open deploys and skipped the fix. | Verified, gap open | Not assessed | Not assessed | F7-04 no alert policy attached |
 | AC-13 | Detection: guardrail template or floor setting changed | LLM01 | Cloud Logging | Module 7. Metric created. | Built, not validated | Not assessed | Not assessed | Not backtested |
 | AC-14 | Detection: KMS key disabled or destroyed | | Cloud Logging | Module 7. Backtest matched the disable, not the re-enable. | Verified, gap open | Not assessed | Not assessed | F7-04 no alert policy attached |
-| AC-15 | Posture monitoring | | Security Command Center Standard | Module 7. Active at organization level. | Active, gap open | Not assessed | Not assessed | F7-07 app project sits outside the organization. No findings yet. |
+| AC-15 | Posture monitoring | | Security Command Center Standard | Module 7, SCC findings report. An open SSH rule went undetected for over 2 hours. | Not detecting | Not assessed | Not assessed | F7-08 misconfiguration scanner not available at this tier. F7-07 app project sits outside the organization. |
 | AC-16 | Detection: guardrail removed from the service config | LLM01 | Cloud Logging | Module 7, F7-05 | Not built | Not assessed | Not assessed | Removing the env var disables Model Armor and logs as a routine deploy |
 
 ## OWASP LLM Top 10 categories with no control
