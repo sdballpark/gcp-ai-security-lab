@@ -7,13 +7,13 @@
 
 ## Summary
 
-The matrix lists 16 controls. In the lab, 10 are tested and working. 4 work but have open gaps. 1 showed as active in the console but did nothing when tested. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
+The matrix lists 16 controls. In the lab, 9 are tested and working. 5 work but have open gaps. 1 showed as active in the console but did nothing when tested. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
 
 ## Controls
 
 | ID | Control | OWASP LLM | Service | Lab evidence | Lab | Dev | Prod | Open item |
 |---|---|---|---|---|---|---|---|---|
-| AC-01 | Dedicated least-privilege identity for the AI app | LLM04 | IAM | Module 2. Two grants replace default Editor. Write-denial test passed. | Verified | Not assessed | Not assessed | |
+| AC-01 | Dedicated least-privilege identity for the AI app | LLM04 | IAM | Module 2. Dedicated account replaced default Editor. Write-denial test passed. | Verified, gap open | Not assessed | Not assessed | DF-01 the account still holds read on the raw, unmasked bucket. Three grants, not two. |
 | AC-02 | Prompt and response screening by template | LLM01, LLM02 | Model Armor | Module 3. Attack leaks fell from 17 of 20 to 0 of 20. | Verified, gap open | Not assessed | Not assessed | F5-01 direct jailbreak attempts passed the filter. AC-04 prevented the leak. |
 | AC-03 | Org-wide guardrail baseline through floor settings | LLM01 | Model Armor | Module 3, F3-02 revised. No effect on traffic. Blocked changes to a non-conformant template until it was brought into line. | Partly working | Not assessed | Not assessed | Existing non-conformant templates are not flagged. F3-03 a rejected update still changed the template. |
 | AC-04 | PII masking before documents reach the model | LLM02 | Sensitive Data Protection | Module 5, C5-01. A direct PII request returned type labels only. 0 of 30 leaks overall. | Verified | Not assessed | Not assessed | |

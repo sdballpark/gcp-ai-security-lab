@@ -108,6 +108,8 @@ The AI logging gap assessment checks which questions the logs can actually answe
 
 Runbooks turn findings into procedures. The first covers changing a Model Armor template safely, built from F3-02 and F3-03: `runbooks/model-armor-template-change.md`
 
+The AI data flow review traces the data from upload to answer, with the identity and controls at each hop: `decision-support/ai-data-flow-review.md`
+
 ## Repository layout
 
 ```

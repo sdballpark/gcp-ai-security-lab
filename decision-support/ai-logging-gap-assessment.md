@@ -16,7 +16,7 @@ Configuration changes are logged, and the three most damaging ones now raise an 
 | Log export | Log sinks | Only the built-in _Required and _Default. No export. |
 | Retention | _Default log bucket | 30 days |
 | Model Armor template logging | Template metadata | Only data residency set. Screening and template operation logging not enabled. |
-| Application log content | Five most recent Cloud Run entries | Deployment events with no payload. Prompt logging not confirmed either way. |
+| Application log content | App source code and recent Cloud Run entries | Prompts arrive in a POST body and the app has no logging calls. Prompts are not logged. |
 | Alert routing | Live tests on real events (Module 7) | Three alerts, email within 1 to 2 minutes |
 
 ## Questions the logs can and cannot answer
@@ -29,7 +29,7 @@ Configuration changes are logged, and the three most damaging ones now raise an 
 | Who called the model, and how often? | No | Vertex AI Data Access logs are off |
 | Which prompts did Model Armor block? | No | The template does not log screening results |
 | Did someone try to copy data out of the perimeter? | In the logs, with no alert | VPC-SC violation entries (Module 4) |
-| What did a given user ask? | Not confirmed | App logging not verified. The app has no user login. |
+| What did a given user ask? | No | Prompts are not logged, and the app has no user login |
 | What happened 60 days ago? | No | 30-day retention, no export |
 
 ## Findings
@@ -49,8 +49,8 @@ Removing the Model Armor setting from the Cloud Run service turns enforcement of
 ### LG-05 Attack and exfiltration signals are logged but not alerted (MEDIUM)
 VPC-SC violation entries are recorded with no alert. DLP quarantine events and Cloud Armor blocks were not assessed: the Cloud Armor module was removed after testing, and quarantine logging was not checked.
 
-### LG-06 Prompt logging is undecided (LOW, open question)
-If prompts are logged, anything a user types, including personal data, becomes a sensitive data store kept for 30 days. If they are not, there is no record of what was asked. Either way it needs a decision with privacy, not a default.
+### LG-06 Prompts are not logged, by default rather than by decision (LOW)
+The /ask endpoint takes the question in a POST body, and the app has no logging calls, so nothing records what was asked. That avoids storing personal data a user might type, but leaves no record for an abuse investigation. Either choice can be defended. It should be made with privacy, not left as a default.
 
 ### LG-07 Organization-level gaps carry over (MEDIUM)
 The AI application project sits outside the organization (F7-07), and organization posture scanning is not detecting (F7-08).
