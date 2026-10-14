@@ -102,6 +102,8 @@ The AI control matrix lists every control the lab tested, with its evidence and 
 
 The SCC findings report opens with what the scanner actually covers, and a canary test showing why a zero-findings result could not be trusted: `decision-support/scc-findings-report.md`
 
+The AI use-case risk assessment is the intake form an AI project completes before design review. It assigns a risk tier by rule and lists the reviews that tier requires: `decision-support/ai-use-case-risk-assessment.md`
+
 ## Repository layout
 
 ```
@@ -112,7 +114,7 @@ module4-vpcsc/         Ingress rule and perimeter test record
 module5-dlp/           DLP templates and buckets in Terraform, ingestion pipeline
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
-decision-support/      Control matrix, findings report and decision packs, for risk owners
+decision-support/      Intake template, control matrix, findings report, decision packs
 ```
 
 Each module has a `FINDINGS.md` with the tests, results, findings by severity, options where a decision is needed, and the controls verified.
