@@ -62,3 +62,14 @@ Admin Activity audit log shows one UpdateFloorSetting event (20:48 UTC, the Insp
 The block-mode configuration is therefore not evidenced. The "Floor settings, Inspect and block" results row may reflect Inspect-only behavior.
 Inspect-only finding stands: floor settings showed Enabled, produced no Model Armor logs, and enforced nothing.
 Lesson applied: confirm configuration changes in the audit log, not only in the console.
+
+## F3-02 revised: floor settings act on template changes, not on traffic (2026-10-14)
+A label update to store-assistant-ma was rejected with TEMPLATE_NOT_CONFORMANT. The floor requires hate speech, dangerous, sexually explicit and harassment filters at HIGH, and the template had none. Floor settings were active. The earlier traffic result still stands: no effect on prompts. The non-conformant template stayed in service, and nothing flagged it until an edit was attempted.
+Operational risk: during an incident, an urgent template fix would be rejected until the template is brought into line with the floor. Keep templates conformant in advance.
+Remediated at 19:07:08 UTC (HTTP 200). Snapshots: template-before-conformance.json and template-after-conformance.json. The before snapshot was taken after the label change landed.
+
+## F3-03 A rejected template update was still applied (MEDIUM, change integrity)
+At 19:04:28 UTC a label update returned HTTP 400 and the audit log recorded code 3. The template updateTime shows 19:04:28.342 with the label applied. Reproduced at 19:06:27 with the same result.
+Impact: an administrator, a deployment pipeline, or a reviewer filtering audit logs for successful changes would conclude nothing changed.
+Detection: the Module 7 alert matches on method, not status, and fired at 19:06 UTC on the rejected call.
+Recommendation: alert on guardrail changes regardless of status. After any failed change, confirm the actual template state. Report the behavior to the provider.

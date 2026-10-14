@@ -1,0 +1,25 @@
+{
+  "name": "projects/rb-ai-prod-sim-1013/locations/us-central1/templates/store-assistant-ma",
+  "createTime": "2026-10-13T20:23:59.366264602Z",
+  "updateTime": "2026-10-14T19:04:28.341921474Z",
+  "labels": {
+    "alert-test": "2026-10-14"
+  },
+  "filterConfig": {
+    "sdpSettings": {
+      "basicConfig": {
+        "filterEnforcement": "ENABLED"
+      }
+    },
+    "piAndJailbreakFilterSettings": {
+      "filterEnforcement": "ENABLED",
+      "confidenceLevel": "MEDIUM_AND_ABOVE"
+    },
+    "maliciousUriFilterSettings": {
+      "filterEnforcement": "ENABLED"
+    }
+  },
+  "templateMetadata": {
+    "dataResidencyCompliant": true
+  }
+}

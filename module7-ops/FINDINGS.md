@@ -69,3 +69,16 @@ Security Health Analytics: effectiveEnablementState DISABLED, intendedEnablement
 Canary deleted at 18:09 UTC.
 Lesson: a zero-findings result is only meaningful after a canary proves the detector fires. The SCC v1 findings API is retired; v2 with --location=global is required.
 Full write-up: decision-support/scc-findings-report.md
+
+## F7-04 closed: alert policies attached and tested (2026-10-14)
+alerts.tf adds an email channel and three log-match alert policies, each with a 5-minute rate limit.
+
+| Alert | Event (UTC) | Email (UTC) | Email on the fix? |
+|---|---|---|---|
+| KMS key disabled | Disable 18:53:14 | 18:55 | No. Re-enable at 19:00:15 sent nothing. |
+| Model Armor template changed | Rejected update 19:04:28, audit code 3 | 19:06 | Successful fix at 19:07:08 fell inside the rate limit |
+| Cloud Run ingress opened | Open 19:08:25 | 19:09 | No. Restore at 19:15:29 sent nothing. |
+
+## F7-09 A new alert policy is not live right after creation (LOW, testing)
+The key was disabled 45 seconds after the policy was created. The audit entry was logged and matched the filter, but no alert fired. The same test 12 minutes later alerted in about 2 minutes.
+Wait a few minutes after deploying alert policies before testing them. A miss right after terraform apply does not prove the filter is broken.

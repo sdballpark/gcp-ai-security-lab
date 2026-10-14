@@ -7,7 +7,7 @@
 
 ## Summary
 
-The matrix lists 16 controls. In the lab, 7 are tested and working. 5 work but have open gaps. 2 showed as active in the console but did nothing when tested. 1 is built but not validated. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
+The matrix lists 16 controls. In the lab, 10 are tested and working. 4 work but have open gaps. 1 showed as active in the console but did nothing when tested. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
 
 ## Controls
 
@@ -15,7 +15,7 @@ The matrix lists 16 controls. In the lab, 7 are tested and working. 5 work but h
 |---|---|---|---|---|---|---|---|---|
 | AC-01 | Dedicated least-privilege identity for the AI app | LLM04 | IAM | Module 2. Two grants replace default Editor. Write-denial test passed. | Verified | Not assessed | Not assessed | |
 | AC-02 | Prompt and response screening by template | LLM01, LLM02 | Model Armor | Module 3. Attack leaks fell from 17 of 20 to 0 of 20. | Verified, gap open | Not assessed | Not assessed | F5-01 direct jailbreak attempts passed the filter. AC-04 prevented the leak. |
-| AC-03 | Org-wide guardrail baseline through floor settings | LLM01 | Model Armor | Module 3, F3-02. Console showed Enabled. Traffic unchanged, no logs. | Not working | Not assessed | Not assessed | Root cause not confirmed |
+| AC-03 | Org-wide guardrail baseline through floor settings | LLM01 | Model Armor | Module 3, F3-02 revised. No effect on traffic. Blocked changes to a non-conformant template until it was brought into line. | Partly working | Not assessed | Not assessed | Existing non-conformant templates are not flagged. F3-03 a rejected update still changed the template. |
 | AC-04 | PII masking before documents reach the model | LLM02 | Sensitive Data Protection | Module 5, C5-01. A direct PII request returned type labels only. 0 of 30 leaks overall. | Verified | Not assessed | Not assessed | |
 | AC-05 | Quarantine of documents carrying prompt injection | LLM01, LLM04 | Sensitive Data Protection, ingestion pipeline | Module 5. The poisoned vendor file was quarantined and its instruction no longer reached the model. | Verified, gap open | Not assessed | Not assessed | F5-03 whole-file quarantine also removed the payment schedule, so the vendor question was answered wrong. Recommended: chunk-level quarantine with human review. |
 | AC-06 | Service perimeter on Storage and Vertex AI | LLM02 | VPC Service Controls | Module 4. Cross-project copy blocked, HTTP 403. | Verified, gap open | Not assessed | Not assessed | F4-03 manual export, F4-04 open ingress source |
@@ -24,9 +24,9 @@ The matrix lists 16 controls. In the lab, 7 are tested and working. 5 work but h
 | AC-09 | Per-client rate limit | LLM10 | Cloud Armor | Module 6. 10 requests per minute per IP, then HTTP 429. | Verified | Not assessed | Not assessed | Limit is per IP, not per user or token |
 | AC-10 | App reachable only through the load balancer | | Cloud Run ingress | Module 6. Default URL bypassed the edge until ingress was restricted. | Verified | Not assessed | Not assessed | |
 | AC-11 | Customer-managed key on RAG source data | | Cloud KMS | Module 7. Disabling the key made data unreadable. Re-enabling restored it. | Verified | Not assessed | Not assessed | F7-06 key disable is also an outage lever |
-| AC-12 | Detection: ingress opened on Cloud Run | | Cloud Logging | Module 7. Backtest matched 6 open deploys and skipped the fix. | Verified, gap open | Not assessed | Not assessed | F7-04 no alert policy attached |
-| AC-13 | Detection: guardrail template or floor setting changed | LLM01 | Cloud Logging | Module 7. Metric created. | Built, not validated | Not assessed | Not assessed | Not backtested |
-| AC-14 | Detection: KMS key disabled or destroyed | | Cloud Logging | Module 7. Backtest matched the disable, not the re-enable. | Verified, gap open | Not assessed | Not assessed | F7-04 no alert policy attached |
+| AC-12 | Detection: ingress opened on Cloud Run | | Cloud Logging, Monitoring alert | Module 7. Backtest matched 6 open deploys. Live test: email about 1 minute after ingress opened, none for the restore. | Verified | Not assessed | Not assessed | |
+| AC-13 | Detection: guardrail template or floor setting changed | LLM01 | Cloud Logging, Monitoring alert | Module 7. Live test: alert fired on a template update the audit log recorded as failed (F3-03). | Verified | Not assessed | Not assessed | |
+| AC-14 | Detection: KMS key disabled or destroyed | | Cloud Logging, Monitoring alert | Module 7. Live test: email 2 minutes after disable, none for the re-enable. | Verified | Not assessed | Not assessed | |
 | AC-15 | Posture monitoring | | Security Command Center Standard | Module 7, SCC findings report. An open SSH rule went undetected for over 2 hours. | Not detecting | Not assessed | Not assessed | F7-08 misconfiguration scanner not available at this tier. F7-07 app project sits outside the organization. |
 | AC-16 | Detection: guardrail removed from the service config | LLM01 | Cloud Logging | Module 7, F7-05 | Not built | Not assessed | Not assessed | Removing the env var disables Model Armor and logs as a routine deploy |
 

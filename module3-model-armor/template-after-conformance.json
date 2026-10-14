@@ -1,0 +1,45 @@
+{
+  "name": "projects/rb-ai-prod-sim-1013/locations/us-central1/templates/store-assistant-ma",
+  "createTime": "2026-10-13T20:23:59.366264602Z",
+  "updateTime": "2026-10-14T19:07:08.819386879Z",
+  "labels": {
+    "alert-test": "repro-2"
+  },
+  "filterConfig": {
+    "raiSettings": {
+      "raiFilters": [
+        {
+          "filterType": "HATE_SPEECH",
+          "confidenceLevel": "HIGH"
+        },
+        {
+          "filterType": "DANGEROUS",
+          "confidenceLevel": "HIGH"
+        },
+        {
+          "filterType": "SEXUALLY_EXPLICIT",
+          "confidenceLevel": "HIGH"
+        },
+        {
+          "filterType": "HARASSMENT",
+          "confidenceLevel": "HIGH"
+        }
+      ]
+    },
+    "sdpSettings": {
+      "basicConfig": {
+        "filterEnforcement": "ENABLED"
+      }
+    },
+    "piAndJailbreakFilterSettings": {
+      "filterEnforcement": "ENABLED",
+      "confidenceLevel": "MEDIUM_AND_ABOVE"
+    },
+    "maliciousUriFilterSettings": {
+      "filterEnforcement": "ENABLED"
+    }
+  },
+  "templateMetadata": {
+    "dataResidencyCompliant": true
+  }
+}
