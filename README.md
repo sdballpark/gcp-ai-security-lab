@@ -92,6 +92,12 @@ I also screened individual documents and full assembled prompts directly against
 
 **A perimeter has limits.** An authorized user could still download data and upload it elsewhere under an enforced perimeter. The findings explain what does address that.
 
+## Decision support
+
+Each FINDINGS.md says what is wrong. A decision pack takes one finding to the people who own the risk, and leaves the decision to them. It holds a risk register entry, options with pros and cons, a decision log entry with the decision fields blank, an exception request, an open-risk summary and a prioritized backlog.
+
+The first pack covers F4-03, manual export under an enforced perimeter: `decision-support/F4-03-manual-export.md`
+
 ## Repository layout
 
 ```
@@ -102,6 +108,7 @@ module4-vpcsc/         Ingress rule and perimeter test record
 module5-dlp/           DLP templates and buckets in Terraform, ingestion pipeline
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
+decision-support/      Decision packs built from findings, for risk owners
 ```
 
 Each module has a `FINDINGS.md` with the tests, results, findings by severity, options where a decision is needed, and the controls verified.
