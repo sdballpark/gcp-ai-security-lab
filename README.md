@@ -110,6 +110,8 @@ Runbooks turn findings into procedures. The first covers changing a Model Armor 
 
 The AI data flow review traces the data from upload to answer, with the identity and controls at each hop: `decision-support/ai-data-flow-review.md`
 
+The CMEK and BYOK applicability model proposes which key option fits each part of an AI workload, and states what was and was not tested: `decision-support/cmek-byok-applicability-model.md`
+
 ## Repository layout
 
 ```
