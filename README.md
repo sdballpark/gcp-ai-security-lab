@@ -98,6 +98,8 @@ Each FINDINGS.md says what is wrong. A decision pack takes one finding to the pe
 
 The first pack covers F4-03, manual export under an enforced perimeter: `decision-support/F4-03-manual-export.md`
 
+The AI control matrix lists every control the lab tested, with its evidence and status, and columns for Dev and Prod as a real engagement would use them: `decision-support/ai-control-matrix.md`
+
 ## Repository layout
 
 ```
@@ -108,7 +110,7 @@ module4-vpcsc/         Ingress rule and perimeter test record
 module5-dlp/           DLP templates and buckets in Terraform, ingestion pipeline
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
-decision-support/      Decision packs built from findings, for risk owners
+decision-support/      AI control matrix and decision packs, for risk owners
 ```
 
 Each module has a `FINDINGS.md` with the tests, results, findings by severity, options where a decision is needed, and the controls verified.
