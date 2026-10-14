@@ -30,6 +30,7 @@ ENTITLEMENTS = json.loads(required("ENTITLEMENTS"))
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "text-embedding-005")
 INDEX_PATH = os.environ.get("INDEX_PATH", "_index/embeddings.json")
 TOP_K = int(os.environ.get("TOP_K", "2"))
+MIN_SCORE = float(os.environ.get("MIN_SCORE", "0.55"))
 
 app = Flask(__name__)
 genai_client = genai.Client(vertexai=True, project=PROJECT, location=LOCATION)
@@ -90,9 +91,12 @@ def retrieve(question, allowed):
     chosen document's live tag in case it changed after the index was built."""
     in_scope = [e for e in load_index() if e.get("audience") in allowed]
     if not in_scope:
-        return [], 0
+        return [], 0, []
     q = embed(question)
-    ranked = sorted(in_scope, key=lambda e: cosine(q, e["embedding"]), reverse=True)[:TOP_K]
+    scored = sorted(((cosine(q, e["embedding"]), e) for e in in_scope), key=lambda p: p[0], reverse=True)
+    scores = [[e["name"], round(sc, 3)] for sc, e in scored]
+    # Relevance floor (F8-03): an in-scope document still has to be relevant to be sent.
+    ranked = [e for sc, e in scored if sc >= MIN_SCORE][:TOP_K]
     docs = []
     for e in ranked:
         blob = bucket.get_blob(e["name"])
@@ -101,7 +105,7 @@ def retrieve(question, allowed):
             log(severity="WARNING", event="tag_mismatch", doc=e["name"], indexed=e.get("audience"), live=live)
             continue
         docs.append((e["name"], blob.download_as_text()))
-    return docs, len(in_scope)
+    return docs, len(in_scope), scores
 
 
 @app.route("/healthz")
@@ -123,11 +127,11 @@ def ask():
     if not question:
         return jsonify({"error": "question is required"}), 400
 
-    docs, in_scope = retrieve(question, allowed)
+    docs, in_scope, scores = retrieve(question, allowed)
     sources = [name for name, _ in docs]
     # Audit record: who asked and what was retrieved. The question text is not logged (LG-06).
     log(severity="INFO", event="retrieval", caller=email, auth=method,
-        entitled=sorted(allowed), in_scope=in_scope, sources=sources)
+        entitled=sorted(allowed), in_scope=in_scope, min_score=MIN_SCORE, scores=scores, sources=sources)
     if not docs:
         return jsonify({"answer": "No documents available to you cover that question.", "sources": []})
 

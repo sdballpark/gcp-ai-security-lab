@@ -82,3 +82,59 @@ alerts.tf adds an email channel and three log-match alert policies, each with a 
 ## F7-09 A new alert policy is not live right after creation (LOW, testing)
 The key was disabled 45 seconds after the policy was created. The audit entry was logged and matched the filter, but no alert fired. The same test 12 minutes later alerted in about 2 minutes.
 Wait a few minutes after deploying alert policies before testing them. A miss right after terraform apply does not prove the filter is broken.
+
+## F7-05 closed: guardrail-removal alert (2026-10-14)
+The first draft filtered Cloud Run audit logs for deploys missing MA_TEMPLATE. It matched every deploy (F7-10). The detection now matches the app's own refusal line instead: `resource.type="cloud_run_revision" AND textPayload:"Refusing to start"`. This works because the Module 8 app refuses to start without the setting.
+
+Backtest: matched only revisions 00006 (one line at 20:06 UTC) and 00009 (16 lines from 20:10:19), the two deploys made without the setting.
+
+| Step | Time (UTC) | Result |
+|---|---|---|
+| Alert created | 20:57:38 | |
+| MA_TEMPLATE removed | 21:03:00 | Revision 00012 rejected. Traffic stayed on 00011. |
+| Email | 21:05 | Named revision 00012 |
+| Setting restored | | Revision 00013 serving |
+
+## F7-10 Cloud Run audit logs do not record environment variables (INFO, design)
+The container spec in the ReplaceService audit entry holds the image and resources only. A filter on an environment variable's absence therefore matches every deploy. A guardrail held in an environment variable cannot be monitored from the audit trail. The app has to report it.
+
+## Data Access logs and bulk-read alert (audit.tf, 2026-10-14)
+- DATA_READ audit logs on for storage.googleapis.com and aiplatform.googleapis.com.
+- Log-based metric sensitive_object_reads: storage.objects.get on the raw and quarantine buckets.
+- Alert bulk_sensitive_reads: more than 10 entries in 5 minutes.
+
+| Step | Time (UTC) | Result |
+|---|---|---|
+| Read 42 seconds after the audit config was applied | 21:08:48 | Not logged |
+| Alert creation | | Failed: the new metric was not yet visible to Monitoring. Applied at 21:18:39 after waiting. |
+| Ten object reads | 21:24:00 to 21:24:27 | 20 objects.get entries and 10 getStorageLayout |
+| Email | 21:28 | Value 20, threshold 5 |
+| Threshold raised to 10 | 21:30:05 | |
+
+## F7-11 One read is not one log entry (LOW, tuning)
+Each `gcloud storage cat` wrote two objects.get entries. A threshold of 5 assumed one entry per read, and would have fired on a normal ingestion run (6 to 8 entries). Raised to more than 10, about five objects. Count entries per action for each client before setting a threshold.
+
+## A control is not live when the API says it is
+Four times in this lab, a change reported success and the control did not work yet:
+
+| Control | Tested after | Result |
+|---|---|---|
+| Alert policy | 45 seconds | No alert (F7-09) |
+| Impersonation grant | 90 seconds | Denied |
+| Data Access audit logging | 42 seconds | Read not logged |
+| Log-based metric used by an alert | Immediately | Metric not visible to the alert, for up to 10 minutes |
+
+Wait, then confirm the control fired. A pass recorded seconds after `terraform apply` proves nothing, and neither does a miss.
+
+## Alerts now active
+| Alert | Detects |
+|---|---|
+| cloudrun_ingress_opened | Ingress opened beyond internal and load balancer |
+| kms_key_disabled_or_destroyed | Key version disabled or scheduled for destruction |
+| modelarmor_guardrail_changed | Template or floor setting updated or deleted, whether the call succeeded or not |
+| guardrail_setting_missing | App refused to start because a guardrail setting was missing |
+| bulk_sensitive_reads | More than 10 object reads from the raw or quarantine bucket in 5 minutes |
+
+## Controls verified (2026-10-14)
+C7-04 Guardrail removal from the deploy raises an email naming the rejected revision.
+C7-05 Bulk reads of sensitive buckets raise an email within about 4 minutes.

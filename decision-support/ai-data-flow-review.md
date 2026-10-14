@@ -8,6 +8,8 @@
 
 Source documents containing personal data are screened and masked before the model sees them, and the app reads only the masked copy. Two gaps undercut that. The app's identity can still read the raw, unmasked bucket, and the app falls back to that bucket if its configuration is missing. Together they meant one bad redeploy would send unmasked data to the model with no error. The raw-bucket grant was removed the same day (DF-01). Ingestion also runs by hand under a person's credentials.
 
+Later the same day, Module 8 replaced send-everything with retrieval scoped to the caller's identity and a relevance threshold, and Module 9 moved the app's outbound traffic onto a private network path. The diagram and hops show the current state.
+
 All facts below were checked against the deployed configuration and source code on 2026-10-14.
 
 ## Diagram
@@ -19,11 +21,11 @@ flowchart LR
   SCR -->|flagged| QUAR[("docs-quarantine")]
   SCR -->|passed| DLP{"DLP de-identify: rag-pii templates"}
   DLP --> CLEAN[("docs-clean: masked")]
-  USER["Store staff"] -->|"POST /ask"| EDGE["Load balancer and Cloud Armor (removed after testing)"]
+  USER["Store staff"] -->|"POST /ask with ID token"| EDGE["Load balancer and Cloud Armor (removed after testing)"]
   EDGE --> RUN["Cloud Run store-assistant, identity store-assistant-sa"]
-  CLEAN -->|"read, every document on every request"| RUN
+  CLEAN -->|"read, only documents the caller is entitled to"| RUN
   RAW -.->|"read removed (DF-01 fixed)"| RUN
-  RUN -->|"prompt with documents"| MA{"Model Armor: prompt and response"}
+  RUN -->|"prompt with documents, over the private API range"| MA{"Model Armor: prompt and response"}
   MA --> VTX["Vertex AI, Gemini 2.5 Flash"]
   VTX -->|response| MA
   MA -->|answer| RUN
@@ -34,14 +36,15 @@ flowchart LR
 
 | # | From and to | Data | Identity | Controls | Gaps |
 |---|---|---|---|---|---|
-| 1 | Owner to raw bucket | Source documents, including PII and an injected vendor file | Person uploading | Google-managed encryption | Every project Viewer can read it (DF-02). Reads are not logged (LG-01). |
+| 1 | Owner to raw bucket | Source documents, including PII and an injected vendor file | Person uploading | Google-managed encryption | Every project Viewer can read it (DF-02). Reads logged since 2026-10-14, with a bulk-read alert (LG-01 resolved). |
 | 2 | Raw bucket to ingestion | Full raw text | The operator's own gcloud credentials | Runs on a workstation | Manual, person-run, raw PII passes through a laptop (DF-03) |
 | 3 | Ingestion to quarantine | Documents flagged for prompt injection | Same | Model Armor injection filter | Whole-file quarantine also drops legitimate content (F5-03) |
 | 4 | Ingestion to clean bucket | Masked text | Same | DLP inspect and de-identify templates | None found |
-| 5 | User to Cloud Run | Question in a POST body | None. No user login. | Ingress limited to internal and load balancer traffic (AC-10). Cloud Armor and rate limit when the load balancer is deployed. | No user authentication. Prompts are not logged (LG-06). |
-| 6 | Clean bucket to Cloud Run | Every masked document, on every request | store-assistant-sa, object reader | Masked data only | No retrieval scoping. Every user gets content from every document (DF-05). |
+| 5 | User to Cloud Run | Question in a POST body | Google ID token, checked by Cloud Run and verified by the app (Module 8) | Ingress limited to internal and load balancer traffic (AC-10). Cloud Armor and rate limit when the load balancer is deployed. | Project owners pass the Cloud Run check (F8-02). Question text is not logged (LG-06). |
+| 6 | Clean bucket to Cloud Run | Masked documents within the caller's entitlements, scoring at least 0.55 | store-assistant-sa, object reader | Entitlement filter before ranking, live tag recheck, relevance threshold (Module 8) | Entitlements and tags are lab mechanisms (F8-04). |
 | 7 | Raw bucket to Cloud Run | None | Object reader removed 2026-10-14 | Denied when tested as the app identity | DF-01 resolved |
-| 8 | Cloud Run to Model Armor to Vertex AI and back | Assembled prompt and model response | store-assistant-sa, Vertex AI user | Model Armor template (AC-02). Floor setting on template changes (AC-03). | Screening results not logged (LG-02). Guardrail turns off if its setting is missing (DF-04). |
+| 8 | Cloud Run to Model Armor to Vertex AI and back | Assembled prompt and model response | store-assistant-sa, Vertex AI user | Model Armor template (AC-02). Floor setting on template changes (AC-03). | None open. Screening logged (LG-02 resolved). Missing guardrail setting blocks the deploy (DF-04 resolved). |
+| 9 | Cloud Run to Google APIs | All outbound traffic | store-assistant-sa | ai-app-vpc: Google APIs resolve to the private range, all other egress denied (Module 9) | DNS still resolves public names (F9-01). Network attachment set with gcloud (F9-02). |
 
 ## Findings
 
@@ -64,7 +67,7 @@ DOCS_BUCKET defaults to the raw bucket. MA_TEMPLATE defaults to empty, which tur
 ### DF-05 Every document goes into every prompt (MEDIUM, design)
 There is no retrieval step. Each request sends the full masked corpus to the model, so any user can draw on any document. With documents scoped to different audiences, this would be oversharing (OWASP LLM08).
 
-**Addressed in Module 8.** Retrieval now filters to the caller's entitlements before ranking. Tested with two personas. Remaining gap: no relevance threshold (F8-03).
+**Resolved in Module 8.** Retrieval now filters to the caller's entitlements before ranking. Tested with two personas. A relevance threshold of 0.55, set from measured scores, keeps unrelated in-scope documents out of the prompt (F8-03 fixed).
 
 ### DF-06 RAG data is outside the key and perimeter controls tested elsewhere (LOW, lab design)
 The customer-managed key was tested on a separate bucket, and docs-clean uses Google-managed encryption. VPC Service Controls were tested on separate organization projects. The app project sits outside the organization (F7-07).

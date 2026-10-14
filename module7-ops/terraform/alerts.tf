@@ -38,6 +38,15 @@ locals {
       EOT
       doc      = "A Model Armor template or floor setting was changed or deleted. Confirm the change was approved, then confirm enforcement still blocks test prompts. The console status alone is not proof (F3-02)."
     }
+
+    guardrail_setting_missing = {
+      display  = "AI app refused to start: guardrail setting missing"
+      severity = "CRITICAL"
+      filter   = <<-EOT
+        resource.type="cloud_run_revision" AND textPayload:"Refusing to start"
+      EOT
+      doc      = "A Cloud Run revision of the AI app refused to start because a required setting, such as the Model Armor template, was missing. The app fails closed, so the bad revision gets no traffic. Find who deployed it and why the setting was dropped. Cloud Run audit logs do not record environment variables, so this app log line is the detection (AC-16)."
+    }
   }
 }
 

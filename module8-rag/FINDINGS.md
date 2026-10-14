@@ -55,3 +55,21 @@ C8-03 Unauthenticated requests are rejected by Cloud Run before reaching the app
 C8-04 A valid Google token not issued for this service is rejected by the app.
 C8-05 A missing guardrail setting blocks the deploy, and traffic stays on the last good revision.
 C8-06 Each request is audited by caller, scope and sources without logging the question.
+
+## F8-03 fixed: relevance threshold (2026-10-14)
+Scores were logged for every in-scope document before choosing a cutoff. The right documents scored 0.632 or higher, wrong ones 0.506 or lower, and an off-topic question 0.375 or lower. MIN_SCORE is set to 0.55 in env.yaml. Revision 00011.
+
+| Caller | Question | Kept | Dropped |
+|---|---|---|---|
+| HR | Refund exceptions | store-ops-policy | hr-employee-record (0.471) |
+| HR | Dana Whitfield's employee ID | hr-employee-record. Answer: E-48213 | store-ops-policy (0.492) |
+| Store staff | When do stores open? | store-ops-policy (0.632) | |
+| Store staff | What's the weather? | Nothing (best 0.375). No model call made. | |
+
+The audit log now records each score and the threshold in force. The 0.55 value fits these four documents only. A larger corpus needs its own measurement.
+
+C8-07 Documents below the relevance threshold are not sent to the model, and a question with no relevant document makes no model call.
+
+## Later changes
+- Revision 00013: guardrail-missing alert tested (module7-ops, F7-05 closed).
+- Revision 00014: app moved onto the private network (module9-private-access). Persona tests passed unchanged.

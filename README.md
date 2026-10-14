@@ -9,7 +9,7 @@ This is a personal lab. It is not a production system, and all data in it is syn
 
 ## The target
 
-A store operations assistant running on Cloud Run. It answers questions using Gemini 2.5 Flash on Vertex AI and a set of documents in Cloud Storage. Retrieval is deliberately naive: every document goes into every prompt. That is a common early-stage pattern, and it is what makes the attacks below work.
+A store operations assistant running on Cloud Run. It answers questions using Gemini 2.5 Flash on Vertex AI and a set of documents in Cloud Storage. In Modules 1 to 7, retrieval is deliberately naive: every document goes into every prompt. That is a common early-stage pattern, and it is what makes the attacks below work. Module 8 replaces it with retrieval scoped to the caller's identity, plus a relevance threshold.
 
 The documents include planted risk:
 - An HR record with a synthetic SSN, home address, and phone number
@@ -46,6 +46,10 @@ I also screened individual documents and full assembled prompts directly against
 | Request flooding | 15 rapid requests from one client | 6 |
 | Edge control bypass | The same SQL injection sent straight to the app's own URL | 6 |
 | Key revocation | Disabled the customer-managed key protecting stored data | 7 |
+| Guardrail removed at deploy | Redeployed the app without its Model Armor setting | 7, 8 |
+| Bulk read of sensitive data | Ten reads of the raw document bucket in under a minute | 7 |
+| Cross-audience retrieval | Store staff asking for HR records, plainly and through injection | 8 |
+| Outbound traffic to the internet | Test jobs on default networking and on the private network | 9 |
 
 ### Results across configurations (model-layer attacks)
 
@@ -60,13 +64,13 @@ I also screened individual documents and full assembled prompts directly against
 | ID | Category | Status | Where |
 |---|---|---|---|
 | LLM01 | Prompt Injection | Tested: direct and indirect | Modules 1, 3, 5 |
-| LLM02 | Sensitive Information Disclosure | Tested | Modules 1, 3, 5 |
+| LLM02 | Sensitive Information Disclosure | Tested | Modules 1, 3, 5, 8 |
 | LLM03 | Supply Chain | Not tested. Terraform providers are version-locked; the app's Python dependencies are not pinned. | |
 | LLM04 | Data and Model Poisoning | Partly tested: poisoned source document, write-denial test, ingestion quarantine. No model training in scope. | Modules 2, 5 |
 | LLM05 | Improper Output Handling | Not tested. The app returns plain text and nothing downstream renders or executes it. | |
 | LLM06 | Excessive Agency | Not applicable. The app has no tools or actions. Least privilege on its identity is tested in Module 2. | |
 | LLM07 | System Prompt Leakage | Attempted through the instruction-override prompt. Leakage of the system prompt itself was not measured separately. | Module 3 |
-| LLM08 | Vector and Embedding Weaknesses | Tested: retrieval scoped to the caller's entitlements before ranking | Module 8 |
+| LLM08 | Vector and Embedding Weaknesses | Tested: retrieval scoped to the caller's entitlements before ranking, with a relevance threshold | Module 8 |
 | LLM09 | Misinformation | Not tested. | |
 | LLM10 | Unbounded Consumption | Partly tested: per-client rate limit at the edge. | Module 6 |
 
@@ -80,8 +84,9 @@ I also screened individual documents and full assembled prompts directly against
 | 4 | VPC Service Controls | Dry run showed the perimeter would block exfiltration and also lock out the administrator. A scoped ingress rule fixed that before enforcement. |
 | 5 | Sensitive Data Protection (DLP) | An ingestion pipeline masks PII and quarantines documents that carry prompt injection. Result: 0 of 30 leaks, with harmless questions answered again. |
 | 6 | Cloud Armor and network exposure | The WAF blocked SQL injection at the edge. The app's direct URL bypassed every edge control until ingress was restricted. |
-| 7 | Detections, CMEK, Security Command Center | Three log-based detections, each backtested against real audit events. Disabling a customer-managed key made stored data unreadable until re-enabled. |
-| 8 | RAG with per-user access | Store staff never retrieved HR or payments documents, even under injection. A missing guardrail setting now blocks the deploy. |
+| 7 | Detections, CMEK, Security Command Center | Five email alerts, each tested on a live event, and Data Access logs for storage and Vertex AI. Disabling a customer-managed key made stored data unreadable until re-enabled. Security Command Center Standard missed a planted misconfiguration. |
+| 8 | RAG with per-user access | Store staff never retrieved HR or payments documents, even under injection. A relevance threshold set from measured scores keeps unrelated documents out of the prompt. A missing guardrail setting now blocks the deploy. |
+| 9 | Private access | Google APIs reached over the private range, all other outbound traffic blocked. DNS still resolves public names. |
 
 ## Findings worth reading first
 
@@ -90,6 +95,10 @@ I also screened individual documents and full assembled prompts directly against
 **Each layer missed something the next layer caught.** The role-play jailbreak passed Cloud Armor and Model Armor, and the model complied. Nothing leaked, because DLP had already masked the data. See `module5-dlp/FINDINGS.md`.
 
 **Dry run prevented an outage.** Enforcing the VPC Service Controls perimeter as first written would have blocked the administrator's own access. See `module4-vpcsc/FINDINGS.md`.
+
+**A control is not live when the API says it is.** A new alert policy, an impersonation grant, Data Access logging and a log metric each failed when tested within seconds of being applied. In the other direction, a Model Armor update that returned an error still took effect. See `module7-ops/FINDINGS.md` and `module3-model-armor/FINDINGS.md`.
+
+**A broken app was marked healthy.** The app refused to start without its guardrail setting, but the platform's startup check passed 8 ms after the server opened its port, before the app had loaded, and sent all traffic to it. See `module8-rag/FINDINGS.md`.
 
 **A perimeter has limits.** An authorized user could still download data and upload it elsewhere under an enforced perimeter. The findings explain what does address that.
 
@@ -113,6 +122,14 @@ The AI data flow review traces the data from upload to answer, with the identity
 
 The CMEK and BYOK applicability model proposes which key option fits each part of an AI workload, and states what was and was not tested: `decision-support/cmek-byok-applicability-model.md`
 
+The platform architecture risk review rates every open risk in the lab as built, and lists what was fixed and how the fix was proven: `decision-support/ai-platform-architecture-risk-review.md`
+
+The AI IAM model scales the single-app identity work to an organization: folders, groups, service identities and the duties that must stay apart: `decision-support/ai-iam-model.md`
+
+The DLP discovery report covers what inspection found in the source data, what it missed, and how discovery would scale: `decision-support/dlp-discovery-report.md`
+
+Developer guidance turns the findings into rules for teams building AI apps, with a release test list: `guidance/ai-app-developer-guidance.md`
+
 ## Repository layout
 
 ```
@@ -124,7 +141,9 @@ module5-dlp/           DLP templates and buckets in Terraform, ingestion pipelin
 module6-network/       Load balancer and Cloud Armor policy in Terraform
 module7-ops/           CMEK in Terraform, detection definitions and backtests
 module8-rag/           Scoped retrieval app, index builder, personas in Terraform
-decision-support/      Intake template, control matrix, findings report, decision packs
+module9-private-access/ Private network, DNS zone and egress firewall in Terraform
+decision-support/      Assessments, control matrix, IAM model, decision packs
+guidance/              Developer guidance
 runbooks/              Procedures built from findings
 ```
 
@@ -139,7 +158,7 @@ After testing, I replaced the synthetic SSN throughout the repository and its hi
 ## Scope and limits
 
 - Built with gcloud and Terraform in WSL2. Some steps used the console where the CLI failed. The findings note where.
-- Modules 1 through 3 and 5 through 7 ran in a project with no parent organization. Module 4 and Security Command Center used a separate Cloud Identity organization.
+- Modules 1 through 3 and 5 through 9 ran in a project with no parent organization. Module 4 and Security Command Center used a separate Cloud Identity organization.
 - Cloud Armor tests ran over HTTP. Production would use HTTPS.
 - Sample sizes are small, usually 5 trials per prompt. Read the rates as indicators, not benchmarks.
 - OWASP categories marked "Not tested" are candidates for future modules.

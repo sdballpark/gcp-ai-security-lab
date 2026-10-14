@@ -7,7 +7,7 @@
 
 ## Summary
 
-The matrix lists 18 controls. In the lab, 11 are tested and working. 5 work but have open gaps. 1 showed as active in the console but did nothing when tested. 1 is identified but not built. Open items feed the risk register and backlog in the decision packs.
+The matrix lists 20 controls. In the lab, 12 are tested and working. 7 work but have open gaps. 1 showed as active in the console but did nothing when tested. Open items feed the risk register and backlog in the decision packs.
 
 ## Controls
 
@@ -28,9 +28,11 @@ The matrix lists 18 controls. In the lab, 11 are tested and working. 5 work but 
 | AC-13 | Detection: guardrail template or floor setting changed | LLM01 | Cloud Logging, Monitoring alert | Module 7. Live test: alert fired on a template update the audit log recorded as failed (F3-03). | Verified | Not assessed | Not assessed | |
 | AC-14 | Detection: KMS key disabled or destroyed | | Cloud Logging, Monitoring alert | Module 7. Live test: email 2 minutes after disable, none for the re-enable. | Verified | Not assessed | Not assessed | |
 | AC-15 | Posture monitoring | | Security Command Center Standard | Module 7, SCC findings report. An open SSH rule went undetected for over 2 hours. | Not detecting | Not assessed | Not assessed | F7-08 misconfiguration scanner not available at this tier. F7-07 app project sits outside the organization. |
-| AC-16 | Detection: guardrail removed from the service config | LLM01 | Cloud Logging | Module 7, F7-05 | Not built | Not assessed | Not assessed | Risk reduced: removing the setting now blocks the deploy (AC-18) |
-| AC-17 | Retrieval scoped to the caller's entitlements before ranking | LLM08, LLM02 | Vertex AI embeddings, Cloud Run | Module 8. Store staff never retrieved HR or payments documents across 3 tests, including injection. | Verified, gap open | Not assessed | Not assessed | F8-03 no relevance threshold. F8-04 entitlements and tags are lab mechanisms. |
+| AC-16 | Detection: guardrail removed from the service config | LLM01 | Cloud Logging, Monitoring alert | Module 7, F7-05 closed. Audit logs do not record environment variables (F7-10), so the alert matches the app's refusal log line. Live test: setting removed 21:03 UTC, deploy rejected, email 21:05 naming the revision. | Verified | Not assessed | Not assessed | |
+| AC-17 | Retrieval scoped to the caller's entitlements before ranking | LLM08, LLM02 | Vertex AI embeddings, Cloud Run | Module 8. Store staff never retrieved HR or payments documents across 3 tests, including injection. Relevance threshold of 0.55 set from measured scores (F8-03 fixed). | Verified, gap open | Not assessed | Not assessed | F8-04 entitlements and tags are lab mechanisms. |
 | AC-18 | App refuses to start without its guardrail and data settings | LLM01 | Cloud Run, gunicorn --preload | Module 8. Bad revision rejected, traffic stayed on the last good one (after F8-01 fix). | Verified | Not assessed | Not assessed | |
+| AC-19 | Data Access logging with a bulk-read alert on sensitive buckets | LLM02 | Cloud Audit Logs, Monitoring alert | Module 7, LG-01 closed. Ten reads of the raw bucket raised an email in about 4 minutes. Threshold set above a normal ingestion run (F7-11). | Verified, gap open | Not assessed | Not assessed | LG-03 logs kept 30 days in the project, no export |
+| AC-20 | Private egress: Google APIs over the private range, all other egress denied | LLM02 | VPC, Cloud DNS, firewall | Module 9. Internet connection blocked, Vertex AI and Cloud Storage reached over 199.36.153.8/30, app unchanged on the private path. | Verified, gap open | Not assessed | Not assessed | F9-01 DNS still resolves public names. F9-02 network attachment set with gcloud. |
 
 ## OWASP LLM Top 10 categories with no control
 
@@ -48,7 +50,7 @@ The matrix lists 18 controls. In the lab, 11 are tested and working. 5 work but 
 |---|---|
 | Map | Use case and data defined. Risks planted on purpose: PII in documents and an injected vendor file. |
 | Measure | Attack harness run against every configuration. Detections backtested against real audit events. |
-| Manage | Controls AC-01 to AC-18. Decision pack for F4-03 with options and a backlog. |
+| Manage | Controls AC-01 to AC-20. Decision pack for F4-03 with options and a backlog. |
 | Govern | Not covered. See the note below. |
 
 **Mapping depth.** This pilot maps to the four AI RMF functions. A full engagement would map each control to AI RMF subcategories and to the NIST Generative AI Profile (NIST AI 600-1). It would also cross-reference the organization's existing control framework, such as NIST SP 800-53, so AI controls are tested and audited alongside existing ones. Which framework, version and profile to use is agreed with the organization before mapping starts.
