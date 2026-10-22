@@ -1,7 +1,7 @@
 # GCP AI Security Lab
 
 **Robert Bogan**
-AI Security & Governance Engineer | CISSP, CISM, CRISC
+AI Security Architect | CISSP, CISM, CRISC
 
 A hands-on lab that secures a generative AI application on Google Cloud. I built a small retrieval-augmented generation (RAG) assistant on Vertex AI, attacked it, then added and tested controls one layer at a time. Each module records what I tested, what happened, and what I would recommend.
 
